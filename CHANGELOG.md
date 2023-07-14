@@ -5,6 +5,13 @@ All notable, unreleased changes to this project will be documented in this file.
 # 3.17.0 [Unreleased]
 
 ### Breaking changes
+- **Feature preview breaking change**:
+  - Deprecate `OrderSettingsInput.defaultTransactionFlowStrategy`. It will be removed
+in 3.17. Use `PaymentSettingsInput.defaultTransactionFlowStrategy` instead.
+  - Deprecate `OrderSettings.defaultTransactionFlowStrategy`. It will be removed
+in 3.17. Use `PaymentSettings.defaultTransactionFlowStrategy` instead.
+  - Change in the CSV export. It will now use empty string for empty attribute values instead of a single whitespace value.
+- Change the Attribute - Product relation to decrease code complexity and make it easier to understand the relations - #13407 by @aniav
 
 ### GraphQL API
 
@@ -135,6 +142,10 @@ All notable, unreleased changes to this project will be documented in this file.
     1. Shipping address
     2. Billing address
     3. Channel's default country
+      1. Shipping address
+      2. Billing address
+      3. Channel's default country
+
 
 ### GraphQL API
 

@@ -614,7 +614,6 @@ def test_append_to_file_for_xlsx(user_export_file, tmpdir, media_root):
         {"id": "345", "name": "test2"},
     ]
     expected_headers = ["id", "name", "collections"]
-
     table = etl.fromdicts(
         [{"id": "1", "name": "A"}], header=expected_headers, missing=""
     )
