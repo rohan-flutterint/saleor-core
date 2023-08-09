@@ -12,7 +12,7 @@ class AssignedPageAttributeValue(SortableModel):
         on_delete=models.CASCADE,
         related_name="pagevalueassignment",
     )
-    new_page = models.ForeignKey(
+    page = models.ForeignKey(
         Page,
         null=True,
         related_name="attributevalues",
@@ -28,12 +28,12 @@ class AssignedPageAttributeValue(SortableModel):
     )
 
     class Meta:
-        unique_together = (("value", "new_page"),)
+        unique_together = (("value", "page"),)
         ordering = ("sort_order", "pk")
         indexes = [BTreeIndex(fields=["page"], name="assignedpageattrvalue_page_idx")]
 
     def get_ordering_queryset(self):
-        return self.new_page.attributevalues.all()  # type: ignore
+        return self.page.attributevalues.all()  # type: ignore
 
 
 class AttributePage(SortableModel):
