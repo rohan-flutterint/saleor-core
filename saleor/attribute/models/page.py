@@ -12,11 +12,6 @@ class AssignedPageAttributeValue(SortableModel):
         on_delete=models.CASCADE,
         related_name="pagevalueassignment",
     )
-    # assignment = models.ForeignKey(
-    #     "AssignedPageAttribute",
-    #     on_delete=models.CASCADE,
-    #     related_name="pagevalueassignment",
-    # )
     new_page = models.ForeignKey(
         Page,
         null=True,
@@ -39,27 +34,6 @@ class AssignedPageAttributeValue(SortableModel):
 
     def get_ordering_queryset(self):
         return self.new_page.attributevalues.all()  # type: ignore
-
-
-# class AssignedPageAttribute(BaseAssignedAttribute):
-#     """Associate a page type attribute and selected values to a given page."""
-#
-#     page = models.ForeignKey(
-#     Page, related_name="attributes", on_delete=models.CASCADE
-#     )
-#     assignment = models.ForeignKey(
-#         "AttributePage", on_delete=models.CASCADE, related_name="pageassignments"
-#     )
-#     values = models.ManyToManyField(
-#         "AttributeValue",
-#         blank=True,
-#         related_name="pageassignments",
-#         through=AssignedPageAttributeValue,
-#     )
-#
-#     class Meta:
-#         unique_together = (("page", "assignment"),)
-#
 
 
 class AttributePage(SortableModel):
