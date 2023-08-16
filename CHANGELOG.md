@@ -142,10 +142,6 @@ in 3.17. Use `PaymentSettings.defaultTransactionFlowStrategy` instead.
     1. Shipping address
     2. Billing address
     3. Channel's default country
-      1. Shipping address
-      2. Billing address
-      3. Channel's default country
-
 
 ### GraphQL API
 
