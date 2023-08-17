@@ -16,6 +16,8 @@ class AssignedPageAttributeValue(SortableModel):
         Page,
         related_name="attributevalues",
         on_delete=models.CASCADE,
+        null=True,
+        blank=False,
     )
     page = models.ForeignKey(
         Page,
@@ -32,7 +34,7 @@ class AssignedPageAttributeValue(SortableModel):
         indexes = [BTreeIndex(fields=["page"], name="assignedpageattrvalue_page_idx")]
 
     def get_ordering_queryset(self):
-        return self.page.attributevalues.all()
+        return self.page.attributevalues.all()  # type: ignore[union-attr]
 
 
 class AttributePage(SortableModel):
