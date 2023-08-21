@@ -216,7 +216,7 @@ class AttributeTranslation(Translation):
 
 
 class AttributeValue(SortableModel, ModelWithExternalReference):
-    name = models.CharField(max_length=250)
+    name = models.CharField(max_length=255)
     # keeps hex code color value in #RRGGBBAA format
     value = models.CharField(max_length=255, blank=True, default="")
     slug = models.SlugField(max_length=255, allow_unicode=True)
@@ -280,7 +280,11 @@ class AttributeValueTranslation(Translation):
     attribute_value = models.ForeignKey(
         AttributeValue, related_name="translations", on_delete=models.CASCADE
     )
+<<<<<<< HEAD
     name = models.CharField(max_length=250)
+=======
+    name = models.CharField(max_length=255)
+>>>>>>> e54b76e813 (Extend attribute value length)
     rich_text = SanitizedJSONField(blank=True, null=True, sanitizer=clean_editor_js)
     plain_text = models.TextField(
         blank=True,
