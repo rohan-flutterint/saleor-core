@@ -11,7 +11,6 @@ in 3.17. Use `PaymentSettingsInput.defaultTransactionFlowStrategy` instead.
   - Deprecate `OrderSettings.defaultTransactionFlowStrategy`. It will be removed
 in 3.17. Use `PaymentSettings.defaultTransactionFlowStrategy` instead.
   - Change in the CSV export. It will now use empty string for empty attribute values instead of a single whitespace value.
-- Change the Attribute - Product relation to decrease code complexity and make it easier to understand the relations - #13407 by @aniav
 
 ### GraphQL API
 
@@ -87,6 +86,8 @@ in 3.17. Use `PaymentSettings.defaultTransactionFlowStrategy` instead.
 - Extended `AttributeValueTranslation.name` to 250 characters - #13776 by @aniav
 - Add a new `page` field on `AssignedPageAttributeValue`. First stage (migration) of a simplification of Attribute - Page relation from #13403. by michal-macioszczyk
 - Update workflow actions with poetry dependencies - #13736 by @rafiwts
+- Change the Attribute - Product relation to decrease code complexity and make it easier to understand the relations - #13407 by @aniav
+
 
 # 3.15.0
 
