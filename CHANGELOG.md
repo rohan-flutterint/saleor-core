@@ -12,7 +12,6 @@ in 3.17. Use `PaymentSettingsInput.defaultTransactionFlowStrategy` instead.
 in 3.17. Use `PaymentSettings.defaultTransactionFlowStrategy` instead.
   - Change in the CSV export. It will now use empty string for empty attribute values instead of a single whitespace value.
 - Change the Attribute - Product relation to decrease code complexity and make it easier to understand the relations - #13407 by @aniav
-- The CSV export will now use empty string for empty values instead of a whitespace value
 
 ### GraphQL API
 
