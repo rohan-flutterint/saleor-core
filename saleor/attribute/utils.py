@@ -1,5 +1,7 @@
 from typing import Iterable, Set, Union
 
+from django.db.models.expressions import Exists, OuterRef
+
 from ..page.models import Page
 from ..product.models import Product, ProductVariant
 from .models import (
@@ -26,8 +28,12 @@ def disassociate_attributes_from_instance(
     This has to remove a FK to Attribute from Product instance and
     remove all value assignments related to that same product and attribute.
     """
+    values = AttributeValue.objects.filter(
+        attribute_id__in=[attr.id for attr in attributes]
+    )
     AssignedProductAttributeValue.objects.filter(
-        product_id=instance.pk, value__attribute__in=attributes
+        Exists(values.filter(id=OuterRef("value_id"))),
+        product_id=instance.pk,
     ).delete()
 
 
@@ -139,6 +145,12 @@ def _associate_attribute_to_instance(
             page=instance, assignment=attribute_page
         )
         assignment.values.set(values)
+
+        # This code will be deleted in new release (3.17), it is temporary solution
+        # between releases to keep database in sync
+        AssignedPageAttributeValue.objects.filter(assignment_id=assignment.pk).update(
+            page_id=instance.pk
+        )
 
         sort_assigned_attribute_values_using_assignment(instance, assignment, values)
         return assignment

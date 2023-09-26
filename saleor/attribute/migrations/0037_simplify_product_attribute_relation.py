@@ -2,23 +2,11 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-from django.db.models.signals import post_migrate
-from django.apps import apps as registry
-
-from .tasks.saleor3_16 import assign_products_to_attribute_values_task
-
-
-def enqueue_data_migration(apps, _schema_editor):
-    def on_migrations_complete(sender=None, **kwargs):
-        assign_products_to_attribute_values_task.delay()
-
-    sender = registry.get_app_config("attribute")
-    post_migrate.connect(on_migrations_complete, weak=False, sender=sender)
 
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("attribute", "0029_alter_attribute_unit"),
+        ("attribute", "0036_assignedproductattributevalue_product_data_migration"),
     ]
 
     state_operations = [
@@ -40,6 +28,23 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # fill in data that was previously done in a celery task
+        migrations.RunSQL(
+            """
+            UPDATE attribute_assignedproductattributevalue
+            SET product_id = (
+                SELECT product_id
+                FROM attribute_assignedproductattribute
+                WHERE attribute_assignedproductattributevalue.assignment_id = attribute_assignedproductattribute.id
+            )
+            WHERE id IN (
+                SELECT ID FROM attribute_assignedproductattributevalue
+                WHERE product_id IS NULL
+                ORDER BY ID DESC
+                FOR UPDATE
+            );
+            """,  # noqa
+        ),
         # Set FKs to allow null values before marking their models/fields deleted
         migrations.AlterField(
             model_name="assignedproductattributevalue",
@@ -94,17 +99,4 @@ class Migration(migrations.Migration):
             """
         ),
         migrations.SeparateDatabaseAndState(state_operations=state_operations),
-        # Add a new field
-        migrations.AddField(
-            model_name="assignedproductattributevalue",
-            name="product",
-            field=models.ForeignKey(
-                null=True,
-                blank=True,
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name="attributevalues",
-                to="product.Product",
-            ),
-        ),
-        migrations.RunPython(enqueue_data_migration, migrations.RunPython.noop),
     ]

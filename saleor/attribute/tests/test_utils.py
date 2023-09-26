@@ -160,12 +160,13 @@ def test_associate_attribute_to_product_copies_data_over_to_new_field(
     values = color_attribute.values.all()
 
     # Assign new values
-    new_assignment = associate_attribute_values_to_instance(
+    associate_attribute_values_to_instance(
         product, color_attribute, values[0], values[1]
     )
 
     # Ensure the new assignment was created
-    assert new_assignment.values.count() == 2
-    assert list(
-        new_assignment.productvalueassignment.values_list("value_id", "product_id")
-    ) == [(values[0].pk, product.id), (values[1].pk, product.id)]
+    assert product.attributevalues.count() == 2
+    assert list(product.attributevalues.values_list("value_id", "product_id")) == [
+        (values[0].pk, product.id),
+        (values[1].pk, product.id),
+    ]

@@ -20,7 +20,11 @@ from ...attribute.utils import (
     associate_attribute_values_to_instance,
     disassociate_attributes_from_instance,
 )
-from ...core.utils import generate_unique_slug, prepare_unique_slug
+from ...core.utils import (
+    generate_unique_slug,
+    prepare_unique_attribute_value_slug,
+    prepare_unique_slug,
+)
 from ...core.utils.editorjs import clean_editor_js
 from ...core.utils.url import get_default_storage_root_url
 from ...page import models as page_models
