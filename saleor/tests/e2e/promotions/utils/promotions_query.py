@@ -18,10 +18,12 @@ query Promotions(
                     startDate
                     endDate
                     metadata {
-                        key value
+                        key
+                        value
                     }
                     privateMetadata {
-                        key value
+                        key
+                        value
                     }
                     rules {
                         id
@@ -52,7 +54,6 @@ def promotions_query(
         "sortBy": sort_by,
         "where": where,
     }
-
     response = staff_api_client.post_graphql(
         PROMOTIONS_QUERY,
         variables,
@@ -60,6 +61,6 @@ def promotions_query(
 
     content = get_graphql_content(response)
 
-    data = content["data"]["promotions"]["edges"]
+    data = content["data"]["promotions"]
 
     return data
