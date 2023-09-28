@@ -216,7 +216,7 @@ class AttributeTranslation(Translation):
 
 
 class AttributeValue(SortableModel, ModelWithExternalReference):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=250)
     # keeps hex code color value in #RRGGBBAA format
     value = models.CharField(max_length=255, blank=True, default="")
     slug = models.SlugField(max_length=255, allow_unicode=True)
