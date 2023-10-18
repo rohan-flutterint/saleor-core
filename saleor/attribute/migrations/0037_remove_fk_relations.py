@@ -2,19 +2,6 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-from django.db.models.signals import post_migrate
-from django.apps import apps as registry
-
-from .tasks.saleor3_16 import assign_pages_to_attribute_values_task
-
-
-def data_migration(apps, _schema_editor):
-    def on_migrations_complete(sender=None, **kwargs):
-        assign_pages_to_attribute_values_task.delay()
-
-    sender = registry.get_app_config("attribute")
-    post_migrate.connect(on_migrations_complete, weak=False, sender=sender)
-
 
 DB_TABLES = {
     "attribute_assignedpageattribute": """
@@ -61,8 +48,7 @@ def remove_fk_constraints_attribute_assignedpageattributevalue(apps, schema_edit
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("page", "0028_add_default_page_type"),
-        ("attribute", "0029_alter_attribute_unit"),
+        ("attribute", "0036_assignedproductattributevalue_product_data_migration"),
     ]
 
     state_operations = [
@@ -94,6 +80,10 @@ class Migration(migrations.Migration):
                 null=True,
             ),
         ),
+        migrations.AlterUniqueTogether(
+            name="assignedproductattribute",
+            unique_together={},
+        ),
         migrations.AlterField(
             model_name="assignedpageattribute",
             name="page",
@@ -123,16 +113,15 @@ class Migration(migrations.Migration):
             migrations.RunPython.noop,
         ),
         migrations.SeparateDatabaseAndState(state_operations=state_operations),
-        migrations.AddField(
+        migrations.AlterField(
             model_name="assignedpageattributevalue",
             name="page",
             field=models.ForeignKey(
-                null=True,
+                null=False,
                 blank=False,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="attributevalues",
                 to="page.page",
             ),
         ),
-        migrations.RunPython(data_migration, migrations.RunPython.noop),
     ]

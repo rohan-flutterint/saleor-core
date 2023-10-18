@@ -28,6 +28,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+celerybeat-schedule
+Pipfile
 
 # Exported results file
 django-queries-results.html
