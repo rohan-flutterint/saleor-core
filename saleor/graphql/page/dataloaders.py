@@ -138,5 +138,4 @@ class SelectedAttributesByPageIdLoader(DataLoader):
     context_key = "selectedattributes_by_page"
 
     def batch_load(self, page_ids):
-        ret = AttributeValuesByPageIdLoader(self.context).load_many(page_ids)
-        return ret
+        return AttributeValuesByPageIdLoader(self.context).load_many(page_ids)
