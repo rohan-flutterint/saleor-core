@@ -16,15 +16,8 @@ class AssignedPageAttributeValue(SortableModel):
         Page,
         related_name="attributevalues",
         on_delete=models.CASCADE,
-        null=True,
+        null=False,
         blank=False,
-    )
-    page = models.ForeignKey(
-        Page,
-        related_name="attributevalues",
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
         db_index=False,
     )
 

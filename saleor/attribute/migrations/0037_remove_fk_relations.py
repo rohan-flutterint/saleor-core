@@ -81,7 +81,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name="assignedproductattribute",
+            name="assignedpageattribute",
             unique_together={},
         ),
         migrations.AlterField(
@@ -121,6 +121,7 @@ class Migration(migrations.Migration):
                 blank=False,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="attributevalues",
+                db_index=False,
                 to="page.page",
             ),
         ),
