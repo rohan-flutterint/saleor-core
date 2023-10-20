@@ -6,6 +6,7 @@ from ....page import models as page_models
 from ....page.error_codes import PageErrorCode
 from ....permission.enums import PagePermissions
 from ...attribute.mutations import BaseReorderAttributeValuesMutation
+from ...attribute.types import Attribute
 from ...core import ResolveInfo
 from ...core.doc_category import DOC_CATEGORY_PAGES
 from ...core.inputs import ReorderInput
@@ -58,7 +59,7 @@ class PageReorderAttributeValues(BaseReorderAttributeValuesMutation):
         moves = data["moves"]
 
         instance = cls.get_instance(instance_id)
-        cls.get_attribute_assignment(
+        cls.validate_attribute_assignment(
             instance, instance_type, attribute_id, error_code_enum
         )
 
@@ -90,3 +91,28 @@ class PageReorderAttributeValues(BaseReorderAttributeValuesMutation):
                 }
             )
         return page
+
+    @classmethod
+    def validate_attribute_assignment(
+        cls, instance, instance_type, attribute_id: str, error_code_enum
+    ):
+        """Validate if this attribute_id is assigned to this product."""
+        attribute_pk = cls.get_global_id_or_error(
+            attribute_id, only_type=Attribute, field="attribute_id"
+        )
+
+        attribute_assignment = instance.page_type.attributepage.filter(
+            attribute_id=attribute_pk
+        ).exists()
+
+        if not attribute_assignment:
+            raise ValidationError(
+                {
+                    "attribute_id": ValidationError(
+                        f"Couldn't resolve to a {instance_type} "
+                        f"attribute: {attribute_id}.",
+                        code=error_code_enum.NOT_FOUND.value,
+                    )
+                }
+            )
+        return attribute_assignment

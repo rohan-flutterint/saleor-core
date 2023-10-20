@@ -80,10 +80,6 @@ class Migration(migrations.Migration):
                 null=True,
             ),
         ),
-        migrations.AlterUniqueTogether(
-            name="assignedpageattribute",
-            unique_together={},
-        ),
         migrations.AlterField(
             model_name="assignedpageattribute",
             name="page",

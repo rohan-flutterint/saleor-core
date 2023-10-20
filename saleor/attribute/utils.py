@@ -81,16 +81,14 @@ def _associate_attribute_to_instance(
     https://github.com/saleor/saleor/issues/12881
     """
     if isinstance(instance, Page):
-        for i in AssignedPageAttributeValue.objects.filter(
-            page_id=instance.pk, value__attribute=attribute
-        ).exclude(value__in=values):
-            i.delete()
+        # Clear all assignments that don't match the values we'd like to assign
+        AssignedPageAttributeValue.objects.filter(
+            page_id=instance.pk, value__attribute_id=attribute.pk
+        ).exclude(value__in=values).delete()
 
         # Create new assignments
         for value in values:
-            obj, _ = AssignedPageAttributeValue.objects.get_or_create(
-                page=instance, value=value
-            )
+            AssignedPageAttributeValue.objects.get_or_create(page=instance, value=value)
 
         sort_assigned_attribute_values(instance, attribute, values)
         return None

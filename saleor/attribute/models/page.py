@@ -27,7 +27,7 @@ class AssignedPageAttributeValue(SortableModel):
         indexes = [BTreeIndex(fields=["page"], name="assignedpageattrvalue_page_idx")]
 
     def get_ordering_queryset(self):
-        return self.page.attributevalues.all()  # type: ignore[union-attr]
+        return self.page.attributevalues.all()
 
 
 class AttributePage(SortableModel):

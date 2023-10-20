@@ -1,6 +1,6 @@
 import graphene
 
-from .....attribute.models import AssignedPageAttributeValue, AttributeValue
+from .....attribute.models import AttributeValue
 from .....attribute.utils import associate_attribute_values_to_instance
 from .....page.error_codes import PageErrorCode
 from ....tests.utils import get_graphql_content
@@ -112,10 +112,11 @@ def test_sort_page_attribute_values(
         assert db_type == "AttributeValue"
         assert int(value_pk) == expected_pk
 
-    apa_values = AssignedPageAttributeValue.objects.filter(assignment__page_id=page.id)
+    apa_values = page.attributevalues.filter(
+        value__attribute_id=page_type_page_reference_attribute.id
+    )
+    print([(a.page_id, a.value.attribute_id) for a in apa_values])
     assert len(apa_values) == 3
-    for assigned_page in apa_values:
-        assert assigned_page.assignment.page.id == assigned_page.page.id
 
 
 def test_sort_page_attribute_values_invalid_attribute_id(
@@ -207,9 +208,6 @@ def test_sort_page_attribute_values_invalid_value_id(
             ),
         ]
     )
-
-    AssignedPageAttributeValue.objects.filter(page_id=page.id).delete()
-
     associate_attribute_values_to_instance(
         page, page_type_page_reference_attribute, *attr_values
     )
