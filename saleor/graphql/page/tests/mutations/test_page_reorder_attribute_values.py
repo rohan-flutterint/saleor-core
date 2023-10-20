@@ -115,7 +115,6 @@ def test_sort_page_attribute_values(
     apa_values = page.attributevalues.filter(
         value__attribute_id=page_type_page_reference_attribute.id
     )
-    print([(a.page_id, a.value.attribute_id) for a in apa_values])
     assert len(apa_values) == 3
 
 
