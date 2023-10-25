@@ -41,10 +41,12 @@ def associate_attribute_values_to_instance(
     # While migrating to a new structure we need to make sure we also
     # copy the assigned product to AssignedProductAttributeValue
     # where it will live after issue #12881 will be implemented
-    if isinstance(instance, Product):
+    if isinstance(instance, Product) and assignment:
         AssignedProductAttributeValue.objects.filter(
             assignment_id=assignment.pk
-        ).update(product_id=instance.pk)
+        ).update(
+            product_id=instance.pk
+        )  # ignore: [union-attr]
 
     return assignment
 
