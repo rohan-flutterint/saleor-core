@@ -21,8 +21,8 @@ if TYPE_CHECKING:
     from .models import AttributePage, AttributeProduct, AttributeVariant
 
 
-def disassociate_attributes_from_page(
-    instance: Page,
+def disassociate_attributes_from_instance(
+    instance: T_INSTANCE,
     *attributes: Attribute,
 ) -> None:
     """Remove attribute assigned to an instance.

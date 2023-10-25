@@ -18,7 +18,7 @@ from ...attribute import AttributeEntityType, AttributeInputType, AttributeType
 from ...attribute import models as attribute_models
 from ...attribute.utils import (
     associate_attribute_values_to_instance,
-    disassociate_attributes_from_page,
+    disassociate_attributes_from_instance,
 )
 from ...core.utils import (
     generate_unique_slug,
@@ -68,9 +68,7 @@ class AttrValuesInput:
 
 
 T_INSTANCE = Union[
-    product_models.Product,
-    product_models.ProductVariant
-    # page_models.Page
+    product_models.Product, product_models.ProductVariant, page_models.Page
 ]
 T_INPUT_MAP = List[Tuple[attribute_models.Attribute, AttrValuesInput]]
 T_ERROR_DICT = Dict[Tuple[str, str], List]
@@ -180,7 +178,7 @@ class AttributeAssignmentMixin:
         lookup_field: str,
         value,
     ):
-        assignment = instance.attributes.filter(
+        assignment = instance.attributes.filter(  # type:ignore[union-attr]
             assignment__attribute=attribute, **{f"values__{lookup_field}": value}
         ).first()
 
@@ -428,7 +426,7 @@ class AttributeAssignmentMixin:
 
         # drop attribute assignment model when values are unassigned from instance
         if clean_assignment:
-            instance.attributes.filter(
+            instance.attributes.filter(  # type:ignore[union-attr]
                 assignment__attribute_id__in=clean_assignment
             ).delete()
 
@@ -832,9 +830,7 @@ class PageAttributeAssignmentMixin(AttributeAssignmentMixin):
 
         # drop attribute assignment model when values are unassigned from instance
         if clean_assignment:
-            disassociate_attributes_from_page(
-                instance, *clean_assignment  # type: ignore[arg-type]
-            )
+            disassociate_attributes_from_instance(instance, *clean_assignment)
 
 
 def get_variant_selection_attributes(qs: "QuerySet") -> "QuerySet":
