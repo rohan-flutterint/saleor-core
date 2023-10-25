@@ -1,7 +1,8 @@
 import pytest
 
 from ...product.models import ProductType
-from ..utils import associate_attribute_values_to_instance, get_page_attributes
+from ..model_helpers import get_page_attribute_values, get_page_attributes
+from ..utils import associate_attribute_values_to_instance
 
 
 def test_associate_attribute_to_non_product_instance(color_attribute):
@@ -76,7 +77,7 @@ def test_associate_attribute_to_page_instance_multiple_values(page):
     """Ensure multiple values in proper order are assigned."""
     attribute = get_page_attributes(page).first()
     assert attribute is not None, "The page doesn't have attribute-values"
-    assert page.attributevalues.count() == 1
+    assert get_page_attribute_values(page, attribute).count() == 1
 
     values = attribute.values.all()
 
@@ -84,11 +85,12 @@ def test_associate_attribute_to_page_instance_multiple_values(page):
     associate_attribute_values_to_instance(page, attribute, values[1], values[0])
 
     # Ensure the new assignment was created and ordered correctly
-    assert page.attributevalues.count() == 2
-    assert list(page.attributevalues.values_list("value_id", "sort_order")) == [
-        (values[1].pk, 0),
-        (values[0].pk, 1),
-    ]
+    page_attributes = get_page_attribute_values(page, attribute)
+    assert len(page_attributes) == 2
+    assert page_attributes[0].value == values[1]
+    assert page_attributes[0].sort_order == 0
+    assert page_attributes[0].value == values[0]
+    assert page_attributes[0].sort_order == 1
 
 
 def test_associate_attribute_to_variant_instance_multiple_values(

@@ -62,8 +62,8 @@ class PageReorderAttributeValues(BaseReorderAttributeValuesMutation):
         cls.validate_attribute_assignment(
             instance, instance_type, attribute_id, error_code_enum
         )
-
         values_m2m = getattr(instance, assignment_lookup)
+
         try:
             operations = cls.prepare_operations(moves, values_m2m)
         except ValidationError as error:
@@ -96,7 +96,7 @@ class PageReorderAttributeValues(BaseReorderAttributeValuesMutation):
     def validate_attribute_assignment(
         cls, instance, instance_type, attribute_id: str, error_code_enum
     ):
-        """Validate if this attribute_id is assigned to this product."""
+        """Validate if this attribute_id is assigned to this page."""
         attribute_pk = cls.get_global_id_or_error(
             attribute_id, only_type=Attribute, field="attribute_id"
         )

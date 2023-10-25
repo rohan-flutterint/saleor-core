@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Iterable, Set, Union
 
+from django.db.models.expressions import Exists, OuterRef
+
 from ..page.models import Page
 from ..product.models import Product, ProductVariant
 from .models import (
@@ -19,6 +21,24 @@ if TYPE_CHECKING:
     from .models import AttributePage, AttributeProduct, AttributeVariant
 
 
+def disassociate_attributes_from_page(
+    instance: Page,
+    *attributes: Attribute,
+) -> None:
+    """Remove attribute assigned to an instance.
+
+    This has to remove a FK to Attribute from Page instance and
+    remove all value assignments related to that same product and attribute.
+    """
+    values = AttributeValue.objects.filter(
+        attribute_id__in=[attr.id for attr in attributes]
+    )
+    AssignedPageAttributeValue.objects.filter(
+        Exists(values.filter(id=OuterRef("value_id"))),
+        page_id=instance.pk,
+    ).delete()
+
+
 def associate_attribute_values_to_instance(
     instance: T_INSTANCE,
     attribute: Attribute,
@@ -36,19 +56,7 @@ def associate_attribute_values_to_instance(
     validate_attribute_owns_values(attribute, values_ids)
 
     # Associate the attribute and the passed values
-    assignment = _associate_attribute_to_instance(instance, attribute, *values)
-
-    # While migrating to a new structure we need to make sure we also
-    # copy the assigned product to AssignedProductAttributeValue
-    # where it will live after issue #12881 will be implemented
-    if isinstance(instance, Product) and assignment:
-        AssignedProductAttributeValue.objects.filter(
-            assignment_id=assignment.pk
-        ).update(
-            product_id=instance.pk
-        )  # ignore: [union-attr]
-
-    return assignment
+    return _associate_attribute_to_instance(instance, attribute, *values)
 
 
 def validate_attribute_owns_values(attribute: Attribute, value_ids: Set[int]) -> None:
@@ -108,6 +116,14 @@ def _associate_attribute_to_instance(
         assignment.values.set(values)
 
         sort_assigned_attribute_values_using_assignment(instance, assignment, values)
+
+        # While migrating to a new structure we need to make sure we also
+        # copy the assigned product to AssignedProductAttributeValue
+        # where it will live after issue #12881 will be implemented
+        AssignedProductAttributeValue.objects.filter(
+            assignment_id=assignment.pk
+        ).update(product_id=instance.pk)
+
         return assignment
 
     if isinstance(instance, ProductVariant):
@@ -166,15 +182,3 @@ def sort_assigned_attribute_values(
         value_assignment.sort_order = index
 
     AssignedPageAttributeValue.objects.bulk_update(values_assignment, ["sort_order"])
-
-
-def get_page_attributes(page: Page):
-    return Attribute.objects.filter(
-        attributepage__page_type_id=page.page_type_id,
-    ).order_by("attributepage__sort_order")
-
-
-def get_page_attribute_values(page: Page, attribute: Attribute):
-    return AttributeValue.objects.filter(
-        pagevalueassignment__page_id=page.pk, attribute_id=attribute.pk
-    ).order_by("pagevalueassignment__sort_order")

@@ -12,12 +12,9 @@ from django.utils.text import slugify
 from freezegun import freeze_time
 from mock import ANY
 
-from .....attribute.models import AssignedPageAttributeValue, AttributeValue
-from .....attribute.utils import (
-    associate_attribute_values_to_instance,
-    get_page_attribute_values,
-    get_page_attributes,
-)
+from .....attribute.model_helpers import get_page_attribute_values, get_page_attributes
+from .....attribute.models import AttributeValue
+from .....attribute.utils import associate_attribute_values_to_instance
 from .....page.error_codes import PageErrorCode
 from .....page.models import Page
 from .....tests.utils import dummy_editorjs
@@ -360,7 +357,8 @@ def test_update_page_clear_values(staff_api_client, permission_manage_pages, pag
     query = UPDATE_PAGE_MUTATION
 
     page_attr = get_page_attributes(page).first()
-    # attribute = page_attr.assignment.attribute
+    assert page_attr is not None
+
     attribute = page_attr
     attribute.value_required = False
     attribute.save(update_fields=["value_required"])
@@ -387,8 +385,7 @@ def test_update_page_clear_values(staff_api_client, permission_manage_pages, pag
     assert data["page"]
     assert not data["page"]["attributes"][0]["values"]
 
-    # with pytest.raises(page_attr._meta.model.DoesNotExist):
-    #     page_attr.refresh_from_db()
+    assert not get_page_attribute_values(page, page_attr).exists()
 
 
 def test_update_page_with_page_reference_attribute_new_value(
@@ -1096,10 +1093,9 @@ def test_update_page_change_attribute_values_ordering(
     )
 
     attribute = get_page_attributes(page).first()
+    assert attribute is not None
     assert list(
-        AssignedPageAttributeValue.objects.filter(
-            value__attribute_id=attribute.id, page_id=page.id
-        ).values_list("value_id", flat=True)
+        get_page_attribute_values(page, attribute).values_list("id", flat=True)
     ) == [attr_value_3.pk, attr_value_2.pk, attr_value_1.pk]
 
     new_ref_order = [product_list[1], product_list[0], product_list[2]]
@@ -1139,13 +1135,10 @@ def test_update_page_change_attribute_values_ordering(
         graphene.Node.to_global_id("AttributeValue", val.pk)
         for val in [attr_value_2, attr_value_1, attr_value_3]
     ]
-    page.refresh_from_db()
 
-    attribute = get_page_attributes(page).first()
+    # page.refresh_from_db()
     assert list(
-        AssignedPageAttributeValue.objects.filter(
-            value__attribute_id=attribute.id, page_id=page.id
-        ).values_list("value_id", flat=True)
+        get_page_attribute_values(page, attribute).values_list("id", flat=True)
     ) == [attr_value_2.pk, attr_value_1.pk, attr_value_3.pk]
 
 
