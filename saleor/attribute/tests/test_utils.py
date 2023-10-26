@@ -1,5 +1,6 @@
 import pytest
 
+from ...attribute.models import AssignedPageAttributeValue
 from ...product.models import ProductType
 from ..model_helpers import get_page_attribute_values, get_page_attributes
 from ..utils import associate_attribute_values_to_instance
@@ -85,12 +86,18 @@ def test_associate_attribute_to_page_instance_multiple_values(page):
     associate_attribute_values_to_instance(page, attribute, values[1], values[0])
 
     # Ensure the new assignment was created and ordered correctly
-    page_attributes = get_page_attribute_values(page, attribute)
-    assert len(page_attributes) == 2
-    assert page_attributes[0].value == values[1]
-    assert page_attributes[0].sort_order == 0
-    assert page_attributes[0].value == values[0]
-    assert page_attributes[0].sort_order == 1
+    assigned_values = (
+        AssignedPageAttributeValue.objects.filter(
+            page_id=page.pk, value__attribute_id=attribute.id
+        )
+        .prefetch_related("value")
+        .order_by("sort_order")
+    )
+    assert len(assigned_values) == 2
+    assert assigned_values[0].value == values[1]
+    assert assigned_values[0].sort_order == 0
+    assert assigned_values[1].value == values[0]
+    assert assigned_values[1].sort_order == 1
 
 
 def test_associate_attribute_to_variant_instance_multiple_values(
